@@ -1,0 +1,777 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  MENTEE
+  MENTOR
+  FREELANCER
+  ADMIN
+  COMPLIANCE
+}
+
+enum MembershipTier {
+  FREE
+  PAID
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+enum SessionType {
+  INSTANT
+  SCHEDULED
+  COURSE
+  WORKSHOP
+  CONSULTING
+}
+
+enum SessionStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ON_HOLD
+  AT_RISK
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum ContentType {
+  CHAT
+  AUDIO
+  VIDEO
+  TRANSCRIPT
+}
+
+enum NotificationType {
+  SESSION_REMINDER
+  MESSAGE
+  SYSTEM
+  COMPLIANCE_ALERT
+  PAYMENT
+}
+
+// ==================== USER MODELS ====================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  avatar    String?
+  phone     String?
+  
+  // Role & Membership
+  roles            UserRole[]     @default([MENTEE])
+  primaryRole      UserRole       @default(MENTEE)
+  membershipTier   MembershipTier @default(FREE)
+  status           UserStatus     @default(PENDING)
+  
+  // Profile & Verification
+  profile           Profile?
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  complianceScore   Int                @default(100)
+  
+  // Personality & AI Analysis
+  personalityProfile PersonalityProfile?
+  aiAnalysis        Json?  // Store AI-generated insights
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+  
+  // Relations
+  mentorProfile     MentorProfile?
+  menteeProfile     MenteeProfile?
+  sessionsAsMentor  Session[] @relation("MentorSessions")
+  sessionsAsMentee  Session[] @relation("MenteeSessions")
+  projects          ProjectMember[]
+  courses           CourseEnrollment[]
+  notifications     Notification[]
+  payments          Payment[]
+  reviewsGiven      Review[] @relation("ReviewGiver")
+  reviewsReceived   Review[] @relation("ReviewReceiver")
+  complianceLogs    ComplianceLog[]
+  creditTransactions CreditTransaction[]
+  
+  @@index([email])
+  @@index([status])
+  @@index([verificationStatus])
+}
+
+model Profile {
+  id          String @id @default(uuid())
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Location
+  country     String?
+  city        String?
+  timezone    String @default("UTC")
+  
+  // Bio & Summary
+  headline    String? @db.VarChar(200)
+  bio         String? @db.Text
+  
+  // Social Links
+  linkedInUrl String?
+  websiteUrl  String?
+  
+  // Documents
+  resumeUrl   String?
+  resumeText  String? @db.Text  // Extracted text for AI analysis
+  
+  // Onboarding
+  onboardingCompleted Boolean @default(false)
+  onboardingStep      Int     @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== MENTOR MODELS ====================
+
+model MentorProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Professional Info
+  yearsOfExperience Int?
+  currentCompany    String?
+  currentTitle      String?
+  industry          String?
+  
+  // AI-Generated Tags
+  expertiseTags     String[]  // Auto-generated from resume
+  industryTags      String[]
+  skillTags         String[]
+  
+  // Service Settings
+  instantRate       Decimal  @db.Decimal(10, 2)
+  scheduledRate     Decimal  @db.Decimal(10, 2)
+  isInstantAvailable Boolean @default(false)
+  
+  // Verification
+  isVerified        Boolean @default(false)
+  verificationNotes String?
+  
+  // Stats
+  totalSessions     Int     @default(0)
+  totalEarnings     Decimal @default(0) @db.Decimal(10, 2)
+  averageRating     Decimal @default(0) @db.Decimal(2, 1)
+  
+  // Relations
+  education      Education[]
+  workExperience WorkExperience[]
+  businesses     Business[]
+  availability   MentorAvailability[]
+  courses        Course[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([expertiseTags])
+  @@index([industryTags])
+}
+
+model Education {
+  id             String @id @default(uuid())
+  mentorId       String
+  mentor         MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  
+  institution    String
+  degree         String
+  fieldOfStudy   String
+  startYear      Int
+  endYear        Int?
+  isCurrent      Boolean @default(false)
+  achievements   String?
+  
+  createdAt DateTime @default(now())
+}
+
+model WorkExperience {
+  id          String @id @default(uuid())
+  mentorId    String
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  
+  company     String
+  title       String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean @default(false)
+  location    String?
+  description String?
+  achievements String?
+  
+  // For verification
+  companyWebsite String?
+  linkedInUrl    String?
+  
+  createdAt DateTime @default(now())
+}
+
+model Business {
+  id          String @id @default(uuid())
+  mentorId    String
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  
+  name        String
+  website     String?
+  description String?
+  startDate   DateTime
+  stage       String  // e.g., "Startup", "Growth", "Established"
+  isActive    Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+}
+
+model MentorAvailability {
+  id        String @id @default(uuid())
+  mentorId  String
+  mentor    MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  
+  dayOfWeek Int      // 0-6 (Sunday-Saturday)
+  startTime String   // "09:00"
+  endTime   String   // "17:00"
+  timezone  String
+  isActive  Boolean  @default(true)
+  
+  @@unique([mentorId, dayOfWeek, startTime])
+}
+
+// ==================== MENTEE MODELS ====================
+
+model MenteeProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Career Stage
+  careerStage     String?  // "Student", "Early Career", "Mid Career", "Senior"
+  currentRole     String?
+  yearsExperience Int?
+  
+  // Goals
+  primaryGoals    String[]
+  interests       String[]
+  
+  // Stats
+  totalSessions   Int @default(0)
+  totalSpent      Decimal @default(0) @db.Decimal(10, 2)
+  
+  // Question Plans
+  questionPlans   QuestionPlan[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model QuestionPlan {
+  id          String @id @default(uuid())
+  menteeId    String
+  mentee      MenteeProfile @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+  
+  topic       String
+  category    String   // e.g., "Career Development", "University Application"
+  status      String   @default("active") // active, completed, abandoned
+  
+  // AI-Generated Questions
+  questions   Question[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Question {
+  id          String @id @default(uuid())
+  planId      String
+  plan        QuestionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  question    String
+  answer      String?
+  priority    Int      @default(1)
+  isAnswered  Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+}
+
+// ==================== PERSONALITY & AI ====================
+
+model PersonalityProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Assessment Results
+  mbtiType       String?
+  discType       String?
+  bigFiveScores  Json?   // Openness, Conscientiousness, etc.
+  
+  // AI Analysis
+  strengths      String[]
+  weaknesses     String[]
+  leadershipStyle String?
+  decisionMakingStyle String?
+  
+  // Communication
+  communicationStyle String?
+  learningStyle      String?
+  
+  // Scores
+  analysisConfidence Decimal @default(0) @db.Decimal(3, 2)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== SESSION MODELS ====================
+
+model Session {
+  id          String @id @default(uuid())
+  
+  // Participants
+  mentorId    String
+  mentor      User   @relation("MentorSessions", fields: [mentorId], references: [id])
+  menteeId    String
+  mentee      User   @relation("MenteeSessions", fields: [menteeId], references: [id])
+  
+  // Session Details
+  type        SessionType
+  status      SessionStatus @default(PENDING)
+  
+  // Timing
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  duration    Int?      // minutes
+  
+  // Content
+  topic       String
+  description String?
+  questions   Json?     // Structured questions
+  
+  // Meeting Info
+  meetingUrl      String?
+  roomId          String?   @unique
+  recordingUrl    String?
+  transcriptUrl   String?
+  
+  // AI Analysis
+  aiSummary       String?   @db.Text
+  aiNotes         Json?     // Key points, action items
+  aiKeywords      String[]
+  
+  // Post-Session
+  mentorFeedback  String?
+  menteeFeedback  String?
+  followUpActions Json?
+  
+  // Payment
+  amount          Decimal   @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus @default(PENDING)
+  
+  // Scoring
+  mentorScoreEarned Int @default(0)
+  menteeScoreEarned Int @default(0)
+  
+  // Relations
+  projectId       String?
+  project         Project?  @relation(fields: [projectId], references: [id])
+  messages        SessionMessage[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([mentorId])
+  @@index([menteeId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model SessionMessage {
+  id        String @id @default(uuid())
+  sessionId String
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  senderId  String
+  type      ContentType
+  content   String @db.Text
+  
+  // AI Analysis
+  sentiment    String?
+  keyTopics    String[]
+  isFlagged    Boolean @default(false)
+  flagReason   String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([sessionId])
+}
+
+// ==================== PROJECT MODELS ====================
+
+model Project {
+  id          String @id @default(uuid())
+  
+  // Basic Info
+  title       String
+  description String?
+  type        SessionType
+  status      ProjectStatus @default(DRAFT)
+  
+  // Objectives
+  mainObjective   String
+  theme           String?   // e.g., "Career Transition", "Leadership Development"
+  
+  // Timeline
+  startDate       DateTime?
+  targetEndDate   DateTime?
+  actualEndDate   DateTime?
+  
+  // Members
+  members         ProjectMember[]
+  
+  // Structure
+  phases          ProjectPhase[]
+  
+  // Sessions
+  sessions        Session[]
+  
+  // AI & Analysis
+  aiInsights      Json?
+  riskFlags       String[]
+  
+  // Progress
+  overallProgress Int @default(0) // 0-100
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProjectMember {
+  id        String @id @default(uuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  
+  role      String  // "lead_mentor", "support_mentor", "mentee"
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([projectId, userId])
+}
+
+model ProjectPhase {
+  id          String @id @default(uuid())
+  projectId   String
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  name        String
+  description String?
+  order       Int
+  
+  // Timeline
+  startDate   DateTime?
+  endDate     DateTime?
+  
+  // Objectives
+  objectives  PhaseObjective[]
+  
+  // Status
+  status      String @default("pending") // pending, active, completed
+  progress    Int    @default(0)
+  
+  createdAt   DateTime @default(now())
+}
+
+model PhaseObjective {
+  id          String @id @default(uuid())
+  phaseId     String
+  phase       ProjectPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  
+  description String
+  kpis        String[]
+  
+  // Progress
+  isCompleted Boolean @default(false)
+  completedAt DateTime?
+  
+  // Notes
+  mentorNotes String?
+  menteeNotes String?
+  aiNotes     String?
+  
+  createdAt   DateTime @default(now())
+}
+
+// ==================== COURSE MODELS ====================
+
+model Course {
+  id          String @id @default(uuid())
+  mentorId    String
+  mentor      MentorProfile @relation(fields: [mentorId], references: [id])
+  
+  // Basic Info
+  title       String
+  description String? @db.Text
+  category    String
+  level       String  // beginner, intermediate, advanced
+  
+  // Pricing
+  price       Decimal @db.Decimal(10, 2)
+  pricingModel String @default("per_course") // per_course, per_session, subscription
+  
+  // Visibility
+  isPublic    Boolean @default(true)
+  status      String  @default("draft") // draft, active, archived
+  
+  // Structure
+  modules     CourseModule[]
+  
+  // Enrollments
+  enrollments CourseEnrollment[]
+  
+  // Stats
+  maxStudents   Int?
+  totalStudents Int @default(0)
+  averageRating Decimal @default(0) @db.Decimal(2, 1)
+  
+  // Promotion
+  landingPageUrl String?
+  shareableLink  String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CourseModule {
+  id          String @id @default(uuid())
+  courseId    String
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?
+  order       Int
+  
+  // Content
+  duration    Int?    // minutes
+  materials   Json?   // resources, links
+  
+  // Session
+  sessions    CourseSession[]
+  
+  createdAt   DateTime @default(now())
+}
+
+model CourseSession {
+  id          String @id @default(uuid())
+  moduleId    String
+  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String?
+  scheduledAt DateTime?
+  duration    Int      // minutes
+  
+  // Meeting
+  meetingUrl  String?
+  recordingUrl String?
+  
+  // Status
+  status      String @default("scheduled") // scheduled, completed, cancelled
+  
+  createdAt   DateTime @default(now())
+}
+
+model CourseEnrollment {
+  id        String @id @default(uuid())
+  courseId  String
+  course    Course @relation(fields: [courseId], references: [id])
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+  
+  status    String @default("active") // active, completed, dropped
+  progress  Int    @default(0)
+  
+  paymentId String?
+  
+  enrolledAt DateTime @default(now())
+  completedAt DateTime?
+  
+  @@unique([courseId, userId])
+}
+
+// ==================== PAYMENT MODELS ====================
+
+model Payment {
+  id          String @id @default(uuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  
+  // Transaction
+  amount      Decimal @db.Decimal(10, 2)
+  currency    String  @default("USD")
+  status      PaymentStatus
+  
+  // Stripe
+  stripePaymentIntentId String?
+  
+  // Type
+  type        String  // "session", "course", "membership", "credit"
+  description String?
+  
+  // Relations
+  sessionId   String?
+  courseId    String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([status])
+}
+
+// ==================== REVIEW MODELS ====================
+
+model Review {
+  id          String @id @default(uuid())
+  
+  // Participants
+  reviewerId  String
+  reviewer    User @relation("ReviewGiver", fields: [reviewerId], references: [id])
+  revieweeId  String
+  reviewee    User @relation("ReviewReceiver", fields: [revieweeId], references: [id])
+  
+  // Content
+  rating      Int     // 1-5
+  content     String? @db.Text
+  
+  // Context
+  sessionId   String?
+  projectId   String?
+  
+  // Categories
+  communication Int?
+  expertise     Int?
+  helpfulness   Int?
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([reviewerId, revieweeId, sessionId])
+}
+
+// ==================== COMPLIANCE MODELS ====================
+
+model ComplianceLog {
+  id          String @id @default(uuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  
+  // Incident
+  type        String  // "contact_sharing", "inappropriate_content", etc.
+  severity    String  // "low", "medium", "high", "critical"
+  description String
+  
+  // Evidence
+  sessionId   String?
+  messageId   String?
+  transcript  String? @db.Text
+  
+  // Resolution
+  status      String @default("open") // open, confirmed, false_positive, resolved
+  adminNotes  String?
+  
+  // Penalty
+  pointsDeducted Int @default(0)
+  
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+  
+  @@index([userId])
+  @@index([status])
+}
+
+// ==================== CREDIT SYSTEM ====================
+
+model CreditTransaction {
+  id          String @id @default(uuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  
+  amount      Int     // Can be positive (earn) or negative (spend)
+  type        String  // "referral", "purchase", "session_bonus", "redemption"
+  description String
+  
+  // Context
+  relatedSessionId String?
+  relatedUserId    String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+}
+
+// ==================== NOTIFICATION MODELS ====================
+
+model Notification {
+  id          String @id @default(uuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        NotificationType
+  title       String
+  message     String
+  
+  // Data
+  data        Json?
+  
+  // Status
+  isRead      Boolean @default(false)
+  readAt      DateTime?
+  
+  // Action
+  actionUrl   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+}
