@@ -35,8 +35,9 @@ export const LoginPage: React.FC = () => {
       } else {
         setError('Login failed')
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Invalid credentials')
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } }
+      setError(axiosErr.response?.data?.error ?? 'Invalid credentials')
     } finally {
       setLoading(false)
     }

@@ -39,16 +39,16 @@ export const Sidebar: React.FC = () => {
   ]
 
   return (
-    <aside className="w-64 bg-white min-h-screen border-r border-gray-100 flex flex-col">
+    <aside className="w-64 glass min-h-screen border-r border-white/20 flex flex-col">
       {/* Logo Area */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="p-6 border-b border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50">
         <Link to="/dashboard" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div>
             <span className="text-lg font-bold text-gray-900">GoMentor</span>
-            <p className="text-xs text-gray-500">Learn & Grow</p>
+            <p className="text-xs text-gray-600">Learn & Grow</p>
           </div>
         </Link>
       </div>
@@ -107,8 +107,8 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* User Card */}
-      <div className="p-4 border-t border-gray-100">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+      <div className="p-4 border-t border-white/20">
+        <div className="glass rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
               <span className="text-lg font-bold text-blue-600">

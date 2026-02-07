@@ -7,8 +7,7 @@ import {
   Clock,
   ArrowRight,
   Sparkles,
-  Users,
-  Star
+  Users
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 

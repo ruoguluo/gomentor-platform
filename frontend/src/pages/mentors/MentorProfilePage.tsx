@@ -1,8 +1,6 @@
-import React from 'react'
-import { useParams } from 'react-router-dom'
+ 
 
 export const MentorProfilePage: React.FC = () => {
-  const { id } = useParams()
   
   return (
     <div className="max-w-4xl mx-auto space-y-6">

@@ -15,19 +15,18 @@ export const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="flex">
-        {/* Admin Sidebar */}
-        <aside className="w-64 bg-gray-900 text-white min-h-screen">
-          <div className="p-4 border-b border-gray-800">
-            <h1 className="text-xl font-bold">Admin Portal</h1>
+        <aside className="w-64 glass min-h-screen border-r border-white/20">
+          <div className="p-4 border-b border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <h1 className="text-xl font-bold text-gray-900">Admin Portal</h1>
           </div>
           <nav className="p-4 space-y-2">
-            <a href="/admin" className="block px-4 py-2 rounded hover:bg-gray-800">Dashboard</a>
-            <a href="/admin/users" className="block px-4 py-2 rounded hover:bg-gray-800">Users</a>
-            <a href="/admin/verification" className="block px-4 py-2 rounded hover:bg-gray-800">Verification</a>
-            <a href="/admin/compliance" className="block px-4 py-2 rounded hover:bg-gray-800">Compliance</a>
-            <a href="/admin/finance" className="block px-4 py-2 rounded hover:bg-gray-800">Finance</a>
+            <a href="/admin" className="sidebar-link">Dashboard</a>
+            <a href="/admin/users" className="sidebar-link">Users</a>
+            <a href="/admin/verification" className="sidebar-link">Verification</a>
+            <a href="/admin/compliance" className="sidebar-link">Compliance</a>
+            <a href="/admin/finance" className="sidebar-link">Finance</a>
           </nav>
         </aside>
         

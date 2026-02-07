@@ -79,7 +79,8 @@ export const LandingPage: React.FC = () => {
         </div>
         
         {/* Navigation */}
-        <nav className="relative z-10 flex justify-between items-center px-6 py-6 max-w-7xl mx-auto">
+        <nav className="relative z-10 max-w-7xl mx-auto">
+          <div className="glass rounded-2xl px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
               <Sparkles className="w-6 h-6 text-blue-600" />
@@ -96,10 +97,11 @@ export const LandingPage: React.FC = () => {
             </Link>
             <Link 
               to="/register" 
-              className="px-6 py-2.5 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className="btn-shine px-6 py-2.5 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               Get Started
             </Link>
+          </div>
           </div>
         </nav>
         
@@ -123,7 +125,7 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
               to="/register" 
-              className="group px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl hover:shadow-white/25 flex items-center gap-2"
+              className="btn-shine group px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl hover:shadow-white/25 flex items-center gap-2"
             >
               Find Your Mentor
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -256,7 +258,7 @@ export const LandingPage: React.FC = () => {
             </p>
             <Link 
               to="/register" 
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl"
+              className="btn-shine inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl"
             >
               Get Started Free
               <ArrowRight className="w-5 h-5" />

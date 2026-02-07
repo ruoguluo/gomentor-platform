@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
 
@@ -35,7 +35,7 @@ import { CompliancePage } from './pages/admin/CompliancePage'
 import { FinancePage } from './pages/admin/FinancePage'
 
 function App() {
-  const { checkAuth, isAuthenticated, isLoading } = useAuthStore()
+  const { checkAuth, isLoading } = useAuthStore()
 
   useEffect(() => {
     checkAuth()
