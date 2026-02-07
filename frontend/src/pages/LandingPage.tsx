@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Sparkles, 
@@ -7,7 +7,6 @@ import {
   Target, 
   TrendingUp, 
   Shield,
-  ArrowRight,
   Star,
   Quote
 } from 'lucide-react'
@@ -67,109 +66,111 @@ export const LandingPage: React.FC = () => {
     }
   ]
 
+  const [query, setQuery] = useState('')
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden animated-gradient">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl float" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl float animation-delay-400" />
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-white rounded-full blur-3xl float animation-delay-200" />
-        </div>
-        
-        {/* Navigation */}
-        <nav className="relative z-10 max-w-7xl mx-auto">
-          <div className="glass rounded-2xl px-6 py-4 flex justify-between items-center">
+      <header className="border-b border-gray-100">
+        <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
-              <Sparkles className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">GoMentor</span>
+            <span className="text-2xl font-bold text-gray-900">GoMentor</span>
           </div>
-          
           <div className="flex items-center gap-4">
-            <Link 
-              to="/login" 
-              className="px-6 py-2.5 text-white font-medium hover:text-blue-100 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link 
-              to="/register" 
-                className="btn-shine px-6 py-2.5 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-            >
-              Get Started
-            </Link>
-          </div>
+            <Link to="/mentors" className="text-sm font-medium text-gray-700 hover:text-gray-900">Find mentors</Link>
+            <Link to="/register" className="text-sm font-medium text-gray-700 hover:text-gray-900">Become a mentor</Link>
+            <Link to="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900">Sign in</Link>
+            <Link to="/register" className="btn-primary">Sign up</Link>
           </div>
         </nav>
-        
-        {/* Hero Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-24 max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-8">
-            <span className="flex h-2 w-2 rounded-full bg-green-400 pulse-ring" />
-            Over 10,000 successful mentorship connections
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 text-balance leading-tight">
-            Learn from the World's{' '}
-            <span className="text-blue-200">Top Professionals</span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl mb-10 max-w-2xl text-blue-100 leading-relaxed">
-            Connect with active industry leaders, not retired coaches. 
-            AI-powered mentorship that accelerates your career growth.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link 
-              to="/register" 
-              className="btn-shine group px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl hover:shadow-white/25 flex items-center gap-2"
-            >
-              Find Your Mentor
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link 
-              to="/register" 
-              className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-2xl font-bold text-lg hover:bg-white/20 transition-all"
-            >
-              Become a Mentor
-            </Link>
-          </div>
-          
-          {/* Stats */}
-          <div className="mt-20 grid grid-cols-3 gap-12">
-            <div className="text-center">
-              <div className="text-5xl font-bold text-white mb-2">500+</div>
-              <div className="text-blue-200 font-medium">Expert Mentors</div>
+      </header>
+
+      {/* Hero */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
+              Learn faster with your best mentor
+            </h1>
+            <p className="mt-4 text-lg text-gray-600">
+              We’ll connect you with a mentor who motivates, challenges, and supports you — from first session to success.
+            </p>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Try “System Design”, “Leadership”, “React”, or a mentor name"
+                  className="w-full px-5 py-3 rounded-full border border-gray-300 focus:outline-none input-focus"
+                />
+              </div>
+              <Link to="/mentors" className="btn-primary">
+                Find mentors
+              </Link>
             </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold text-white mb-2">10k+</div>
-              <div className="text-blue-200 font-medium">Sessions Completed</div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {['Software Engineering', 'Product', 'Data', 'Design', 'Leadership'].map((c) => (
+                <span key={c} className="chip">{c}</span>
+              ))}
             </div>
-            <div className="text-center">
-              <div className="text-5xl font-bold text-white mb-2">4.9</div>
-              <div className="text-blue-200 font-medium">Average Rating</div>
+
+            <div className="mt-8 grid grid-cols-3 gap-6">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">100,000+</p>
+                <p className="text-sm text-gray-500">Experienced mentors</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">300,000+</p>
+                <p className="text-sm text-gray-500">5‑star session reviews</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">4.8</p>
+                <p className="text-sm text-gray-500">on the App Store</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-100 p-6 bg-gray-50">
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { name: 'Sarah', title: 'Engineering Leader', rating: 4.9 },
+                { name: 'James', title: 'Staff Engineer', rating: 4.8 },
+                { name: 'Amira', title: 'Product Manager', rating: 4.9 },
+                { name: 'Diego', title: 'UX Lead', rating: 4.7 },
+              ].map((m, i) => (
+                <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center mb-3">
+                    {m.name[0]}
+                  </div>
+                  <p className="font-semibold text-gray-900">{m.name}</p>
+                  <p className="text-sm text-gray-600">{m.title}</p>
+                  <div className="mt-2 flex items-center gap-1 text-sm text-gray-700">
+                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    {m.rating}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-        
-        {/* Wave Divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" className="w-full">
-            <path 
-              d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" 
-              fill="white"
-            />
-          </svg>
-        </div>
-      </div>
+      </section>
       
+      {/* Guarantee */}
+      <section className="px-6">
+        <div className="max-w-7xl mx-auto rounded-2xl border border-gray-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="text-lg font-semibold text-gray-900">Sessions you’ll love. Guaranteed.</p>
+            <p className="text-sm text-gray-600">Try another mentor for free if you’re not satisfied.</p>
+          </div>
+          <Link to="/mentors" className="btn-outline">Learn more</Link>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-24 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold gradient-text mb-4">Why Choose GoMentor?</h2>
+          <h2 className="text-4xl font-bold mb-4">Why Choose GoMentor?</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Everything you need to accelerate your career with world-class mentorship
           </p>
@@ -243,26 +244,16 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
       
-      {/* CTA Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-16 text-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl" />
+      {/* Corporate Training */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="max-w-7xl mx-auto rounded-2xl border border-gray-200 p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-xl">
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Corporate mentorship training for teams</h3>
+            <p className="text-gray-600">Personalized mentorship for businesses. Book a demo to learn more.</p>
           </div>
-          
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Accelerate Your Career?</h2>
-            <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-              Join thousands of professionals who are leveling up with personalized mentorship.
-            </p>
-            <Link 
-              to="/register" 
-              className="btn-shine inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl"
-            >
-              Get Started Free
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/register" className="btn-primary">Book a demo</Link>
+            <Link to="/register" className="btn-outline">Refer your company</Link>
           </div>
         </div>
       </section>
