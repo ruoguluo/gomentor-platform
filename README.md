@@ -88,7 +88,7 @@ gomentor-platform/
 ### Prerequisites
 - Node.js 18+
 - Python 3.10+
-- PostgreSQL 14+
+- SQLite (for dev/staging) or PostgreSQL 14+ (for production)
 - Redis 7+
 
 ### 1. Clone & Install
@@ -98,7 +98,45 @@ cd /root/Projects/gomentor-platform
 # Backend
 cd backend
 npm install
+```
 
+### 2. Database Setup (SQLite for Staging/Dev)
+
+Since we are using SQLite for easier deployment and portability, follow these steps to set up the database:
+
+1.  **Configure Environment**:
+    Create or update your `.env` file in the `backend` directory:
+    ```env
+    # backend/.env
+    DATABASE_URL="file:./dev.db"
+    JWT_SECRET="your_jwt_secret"
+    # ... other variables
+    ```
+
+2.  **Generate Prisma Client**:
+    This ensures the client code matches the schema (especially for SQLite compatibility).
+    ```bash
+    cd backend
+    npx prisma generate
+    ```
+
+3.  **Push Schema to Database**:
+    This creates the `dev.db` file and creates all tables.
+    ```bash
+    npx prisma db push
+    ```
+
+### 3. Start the Application
+
+```bash
+# Backend (Terminal 1)
+cd backend
+npm run dev
+
+# Frontend (Terminal 2)
+cd frontend
+npm run dev
+```
 # Frontend
 cd ../frontend
 npm install
