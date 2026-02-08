@@ -31,7 +31,7 @@ export class AuthService {
         password: hashedPassword,
         firstName: data.firstName,
         lastName: data.lastName,
-        roles: data.roles || ['MENTEE'],
+        roles: JSON.stringify(data.roles || ['MENTEE']),
         primaryRole: data.roles?.[0] || 'MENTEE',
         status: 'ACTIVE',
         profile: {
@@ -145,14 +145,14 @@ export class AuthService {
   private generateTokens(userId: string, email: string) {
     const accessToken = jwt.sign(
       { userId, email },
-      process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      process.env.JWT_SECRET as string,
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
     );
 
     const refreshToken = jwt.sign(
       { userId, email },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d' }
+      process.env.JWT_REFRESH_SECRET as string,
+      { expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '30d') as any }
     );
 
     return { accessToken, refreshToken };
@@ -160,6 +160,14 @@ export class AuthService {
 
   private sanitizeUser(user: any) {
     const { password, ...sanitized } = user;
+    // Parse roles if it's a string (SQLite workaround)
+    if (typeof sanitized.roles === 'string') {
+      try {
+        sanitized.roles = JSON.parse(sanitized.roles);
+      } catch (e) {
+        sanitized.roles = ['MENTEE']; // Fallback
+      }
+    }
     return sanitized;
   }
 }

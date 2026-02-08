@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthRequest } from '../middleware/auth.middleware';
 
 const prisma = new PrismaClient();
 
 export class MentorController {
   // Get current mentor's profile
-  getMyProfile = async (req: Request, res: Response) => {
+  getMyProfile = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
       
@@ -49,7 +50,7 @@ export class MentorController {
   };
 
   // Create or update mentor profile
-  upsertProfile = async (req: Request, res: Response) => {
+  upsertProfile = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
       const {
@@ -74,21 +75,21 @@ export class MentorController {
           currentCompany,
           currentTitle,
           industry,
-          expertiseTags: expertiseTags || [],
-          industryTags: industryTags || [],
-          skillTags: skillTags || [],
+          expertiseTags: expertiseTags ? JSON.stringify(expertiseTags) : undefined,
+          industryTags: industryTags ? JSON.stringify(industryTags) : undefined,
+          skillTags: skillTags ? JSON.stringify(skillTags) : undefined,
           instantRate: instantRate ? parseFloat(instantRate) : undefined,
           scheduledRate: scheduledRate ? parseFloat(scheduledRate) : undefined
         },
         create: {
-          userId,
+          userId: userId!,
           yearsOfExperience: yearsOfExperience ? parseInt(yearsOfExperience) : 0,
           currentCompany,
           currentTitle,
           industry,
-          expertiseTags: expertiseTags || [],
-          industryTags: industryTags || [],
-          skillTags: skillTags || [],
+          expertiseTags: JSON.stringify(expertiseTags || []),
+          industryTags: JSON.stringify(industryTags || []),
+          skillTags: JSON.stringify(skillTags || []),
           instantRate: instantRate ? parseFloat(instantRate) : 0,
           scheduledRate: scheduledRate ? parseFloat(scheduledRate) : 0
         }
@@ -118,7 +119,7 @@ export class MentorController {
   };
 
   // Add education
-  addEducation = async (req: Request, res: Response) => {
+  addEducation = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
       const { institution, degree, fieldOfStudy, startYear, endYear, achievements } = req.body;
@@ -159,7 +160,7 @@ export class MentorController {
   };
 
   // Add work experience
-  addWorkExperience = async (req: Request, res: Response) => {
+  addWorkExperience = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
       const { company, title, startDate, endDate, isCurrent, location, description, achievements } = req.body;
