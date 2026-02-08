@@ -1,6 +1,5 @@
 import fs from 'fs';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdf = require('pdf-parse');
+import pdf from 'pdf-parse';
 
 export class AIService {
   // Extract text from PDF
@@ -10,7 +9,7 @@ export class AIService {
       const data = await pdf(dataBuffer);
       return data.text;
     } catch (error: any) {
-      console.error('Error extracting PDF text:', error);
+      console.warn('PDF parsing failed (using fallback text):', error.message);
       // Fallback for testing with dummy files or if parsing fails
       // We accept failure here to allow flow to continue for MVP/Demo
       return "This is a fallback resume text. The user is a Senior Software Engineer with expertise in Leadership, React, and Node.js. Worked at Tech Corp.";
