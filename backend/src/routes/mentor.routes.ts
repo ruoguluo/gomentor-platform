@@ -1,26 +1,18 @@
 import { Router } from 'express';
+import { MentorController } from '../controllers/mentor.controller';
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
+const mentorController = new MentorController();
 
-// TODO: Add mentor controller and routes
-router.get('/', (req, res) => {
-  res.json({ message: 'Search mentors' });
-});
+// Public routes
+router.get('/search', mentorController.searchMentors);
+router.get('/:id', mentorController.getPublicProfile);
 
-router.get('/:id', (req, res) => {
-  res.json({ message: 'Get mentor profile' });
-});
-
-router.put('/profile', (req, res) => {
-  res.json({ message: 'Update mentor profile' });
-});
-
-router.post('/availability', (req, res) => {
-  res.json({ message: 'Set mentor availability' });
-});
-
-router.get('/:id/sessions', (req, res) => {
-  res.json({ message: 'Get mentor sessions' });
-});
+// Protected routes (require authentication)
+router.get('/me/profile', authenticate, mentorController.getMyProfile);
+router.put('/me/profile', authenticate, mentorController.upsertProfile);
+router.post('/me/education', authenticate, mentorController.addEducation);
+router.post('/me/experience', authenticate, mentorController.addWorkExperience);
 
 export { router as mentorRoutes };

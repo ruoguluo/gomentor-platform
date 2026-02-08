@@ -1,4 +1,4 @@
-import React from 'react'
+import { Link } from 'react-router-dom'
 import { 
   DollarSign, 
   Users, 
@@ -217,10 +217,13 @@ export const MentorPortalPage: React.FC = () => {
                 Update Schedule
               </button>
               
-              <button className="w-full flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all">
+              <Link
+                to="/profile/mentor"
+                className="w-full flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all"
+              >
                 <Edit3 className="w-5 h-5" />
                 Edit Profile
-              </button>
+              </Link>
               
               <button className="w-full flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all">
                 <TrendingUp className="w-5 h-5" />

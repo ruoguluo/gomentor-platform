@@ -21,6 +21,7 @@ import { SessionPage } from './pages/sessions/SessionPage'
 import { ProjectPage } from './pages/projects/ProjectPage'
 import { CoursePage } from './pages/courses/CoursePage'
 import { ProfilePage } from './pages/profile/ProfilePage'
+import { MentorProfileEditPage } from './pages/profile/MentorProfileEditPage'
 import { NotificationsPage } from './pages/notifications/NotificationsPage'
 
 // Role-specific portals
@@ -72,6 +73,7 @@ function App() {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/courses/:id" element={<CoursePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/mentor" element={<MentorProfileEditPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         
         {/* Portals */}
