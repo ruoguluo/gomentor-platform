@@ -101,9 +101,9 @@ export const MentorProfileEditPage: React.FC = () => {
         // Merge generated tags
         setFormData(prev => ({
           ...prev,
-          expertiseTags: [...new Set([...(prev.expertiseTags || []), ...(response.data.tags.expertise || [])])],
-          industryTags: [...new Set([...(prev.industryTags || []), ...(response.data.tags.industry || [])])],
-          skillTags: [...new Set([...(prev.skillTags || []), ...(response.data.tags.skills || [])])],
+          expertiseTags: [...new Set([...(prev.expertiseTags || []), ...(response.data.extractedTags.expertise || [])])],
+          industryTags: [...new Set([...(prev.industryTags || []), ...(response.data.extractedTags.industry || [])])],
+          skillTags: [...new Set([...(prev.skillTags || []), ...(response.data.extractedTags.skills || [])])],
         }))
         setTimeout(() => setSuccess(''), 3000)
       }
