@@ -3,86 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-// ==================== ENUMS ====================
-
-enum UserRole {
-  MENTEE
-  MENTOR
-  FREELANCER
-  ADMIN
-  COMPLIANCE
-}
-
-enum MembershipTier {
-  FREE
-  PAID
-}
-
-enum UserStatus {
-  PENDING
-  ACTIVE
-  SUSPENDED
-  BANNED
-}
-
-enum VerificationStatus {
-  UNVERIFIED
-  PENDING_REVIEW
-  APPROVED
-  REJECTED
-  FLAGGED
-}
-
-enum SessionType {
-  INSTANT
-  SCHEDULED
-  COURSE
-  WORKSHOP
-  CONSULTING
-}
-
-enum SessionStatus {
-  PENDING
-  CONFIRMED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
-
-enum ProjectStatus {
-  DRAFT
-  ACTIVE
-  ON_HOLD
-  AT_RISK
-  COMPLETED
-  CANCELLED
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  REFUNDED
-  FAILED
-}
-
-enum ContentType {
-  CHAT
-  AUDIO
-  VIDEO
-  TRANSCRIPT
-}
-
-enum NotificationType {
-  SESSION_REMINDER
-  MESSAGE
-  SYSTEM
-  COMPLIANCE_ALERT
-  PAYMENT
 }
 
 // ==================== USER MODELS ====================
@@ -97,19 +19,19 @@ model User {
   phone     String?
   
   // Role & Membership
-  roles            UserRole[]     @default([MENTEE])
-  primaryRole      UserRole       @default(MENTEE)
-  membershipTier   MembershipTier @default(FREE)
-  status           UserStatus     @default(PENDING)
+  roles            String         @default("[\"MENTEE\"]") // Stored as JSON string
+  primaryRole      String         @default("MENTEE")
+  membershipTier   String         @default("FREE")
+  status           String         @default("PENDING")
   
   // Profile & Verification
   profile           Profile?
-  verificationStatus VerificationStatus @default(UNVERIFIED)
+  verificationStatus String       @default("UNVERIFIED")
   complianceScore   Int                @default(100)
   
   // Personality & AI Analysis
   personalityProfile PersonalityProfile?
-  aiAnalysis        Json?  // Store AI-generated insights
+  aiAnalysis        String?  // Store AI-generated insights (JSON string)
   
   // Timestamps
   createdAt DateTime @default(now())
@@ -146,8 +68,8 @@ model Profile {
   timezone    String @default("UTC")
   
   // Bio & Summary
-  headline    String? @db.VarChar(200)
-  bio         String? @db.Text
+  headline    String?
+  bio         String?
   
   // Social Links
   linkedInUrl String?
@@ -155,7 +77,7 @@ model Profile {
   
   // Documents
   resumeUrl   String?
-  resumeText  String? @db.Text  // Extracted text for AI analysis
+  resumeText  String?  // Extracted text for AI analysis
   
   // Onboarding
   onboardingCompleted Boolean @default(false)
@@ -179,13 +101,13 @@ model MentorProfile {
   industry          String?
   
   // AI-Generated Tags
-  expertiseTags     String[]  // Auto-generated from resume
-  industryTags      String[]
-  skillTags         String[]
+  expertiseTags     String // Stored as JSON string or comma-separated
+  industryTags      String // Stored as JSON string or comma-separated
+  skillTags         String // Stored as JSON string or comma-separated
   
   // Service Settings
-  instantRate       Decimal  @db.Decimal(10, 2)
-  scheduledRate     Decimal  @db.Decimal(10, 2)
+  instantRate       Float
+  scheduledRate     Float
   isInstantAvailable Boolean @default(false)
   
   // Verification
@@ -194,8 +116,8 @@ model MentorProfile {
   
   // Stats
   totalSessions     Int     @default(0)
-  totalEarnings     Decimal @default(0) @db.Decimal(10, 2)
-  averageRating     Decimal @default(0) @db.Decimal(2, 1)
+  totalEarnings     Float   @default(0)
+  averageRating     Float   @default(0)
   
   // Relations
   education      Education[]
@@ -290,12 +212,12 @@ model MenteeProfile {
   yearsExperience Int?
   
   // Goals
-  primaryGoals    String[]
-  interests       String[]
+  primaryGoals    String // Stored as JSON string
+  interests       String // Stored as JSON string
   
   // Stats
   totalSessions   Int @default(0)
-  totalSpent      Decimal @default(0) @db.Decimal(10, 2)
+  totalSpent      Float @default(0)
   
   // Question Plans
   questionPlans   QuestionPlan[]
@@ -343,11 +265,11 @@ model PersonalityProfile {
   // Assessment Results
   mbtiType       String?
   discType       String?
-  bigFiveScores  Json?   // Openness, Conscientiousness, etc.
+  bigFiveScores  String?   // Openness, Conscientiousness, etc. (JSON string)
   
   // AI Analysis
-  strengths      String[]
-  weaknesses     String[]
+  strengths      String // Stored as JSON string
+  weaknesses     String // Stored as JSON string
   leadershipStyle String?
   decisionMakingStyle String?
   
@@ -356,7 +278,7 @@ model PersonalityProfile {
   learningStyle      String?
   
   // Scores
-  analysisConfidence Decimal @default(0) @db.Decimal(3, 2)
+  analysisConfidence Float @default(0)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -374,8 +296,8 @@ model Session {
   mentee      User   @relation("MenteeSessions", fields: [menteeId], references: [id])
   
   // Session Details
-  type        SessionType
-  status      SessionStatus @default(PENDING)
+  type        String
+  status      String @default("PENDING")
   
   // Timing
   scheduledAt DateTime?
@@ -386,7 +308,7 @@ model Session {
   // Content
   topic       String
   description String?
-  questions   Json?     // Structured questions
+  questions   String?     // Structured questions (JSON string)
   
   // Meeting Info
   meetingUrl      String?
@@ -395,18 +317,18 @@ model Session {
   transcriptUrl   String?
   
   // AI Analysis
-  aiSummary       String?   @db.Text
-  aiNotes         Json?     // Key points, action items
-  aiKeywords      String[]
+  aiSummary       String?
+  aiNotes         String?     // Key points, action items (JSON string)
+  aiKeywords      String // Stored as JSON string
   
   // Post-Session
   mentorFeedback  String?
   menteeFeedback  String?
-  followUpActions Json?
+  followUpActions String? // JSON string
   
   // Payment
-  amount          Decimal   @db.Decimal(10, 2)
-  paymentStatus   PaymentStatus @default(PENDING)
+  amount          Float
+  paymentStatus   String @default("PENDING")
   
   // Scoring
   mentorScoreEarned Int @default(0)
@@ -432,12 +354,12 @@ model SessionMessage {
   session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   
   senderId  String
-  type      ContentType
-  content   String @db.Text
+  type      String
+  content   String
   
   // AI Analysis
   sentiment    String?
-  keyTopics    String[]
+  keyTopics    String // Stored as JSON string
   isFlagged    Boolean @default(false)
   flagReason   String?
   
@@ -454,8 +376,8 @@ model Project {
   // Basic Info
   title       String
   description String?
-  type        SessionType
-  status      ProjectStatus @default(DRAFT)
+  type        String
+  status      String @default("DRAFT")
   
   // Objectives
   mainObjective   String
@@ -476,8 +398,8 @@ model Project {
   sessions        Session[]
   
   // AI & Analysis
-  aiInsights      Json?
-  riskFlags       String[]
+  aiInsights      String? // JSON string
+  riskFlags       String // Stored as JSON string
   
   // Progress
   overallProgress Int @default(0) // 0-100
@@ -529,7 +451,7 @@ model PhaseObjective {
   phase       ProjectPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
   
   description String
-  kpis        String[]
+  kpis        String // Stored as JSON string
   
   // Progress
   isCompleted Boolean @default(false)
@@ -552,12 +474,12 @@ model Course {
   
   // Basic Info
   title       String
-  description String? @db.Text
+  description String?
   category    String
   level       String  // beginner, intermediate, advanced
   
   // Pricing
-  price       Decimal @db.Decimal(10, 2)
+  price       Float
   pricingModel String @default("per_course") // per_course, per_session, subscription
   
   // Visibility
@@ -573,7 +495,7 @@ model Course {
   // Stats
   maxStudents   Int?
   totalStudents Int @default(0)
-  averageRating Decimal @default(0) @db.Decimal(2, 1)
+  averageRating Float @default(0)
   
   // Promotion
   landingPageUrl String?
@@ -594,7 +516,7 @@ model CourseModule {
   
   // Content
   duration    Int?    // minutes
-  materials   Json?   // resources, links
+  materials   String?   // resources, links (JSON string)
   
   // Session
   sessions    CourseSession[]
@@ -648,9 +570,9 @@ model Payment {
   user        User   @relation(fields: [userId], references: [id])
   
   // Transaction
-  amount      Decimal @db.Decimal(10, 2)
+  amount      Float
   currency    String  @default("USD")
-  status      PaymentStatus
+  status      String
   
   // Stripe
   stripePaymentIntentId String?
@@ -682,7 +604,7 @@ model Review {
   
   // Content
   rating      Int     // 1-5
-  content     String? @db.Text
+  content     String?
   
   // Context
   sessionId   String?
@@ -713,7 +635,7 @@ model ComplianceLog {
   // Evidence
   sessionId   String?
   messageId   String?
-  transcript  String? @db.Text
+  transcript  String?
   
   // Resolution
   status      String @default("open") // open, confirmed, false_positive, resolved
@@ -756,12 +678,12 @@ model Notification {
   userId      String
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  type        NotificationType
+  type        String
   title       String
   message     String
   
   // Data
-  data        Json?
+  data        String? // JSON string
   
   // Status
   isRead      Boolean @default(false)

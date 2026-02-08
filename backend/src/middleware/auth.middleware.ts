@@ -47,7 +47,19 @@ export const authenticate = async (
       });
     }
 
-    req.user = user;
+    // Parse roles string to array
+    let roles: string[] = [];
+    try {
+      roles = JSON.parse(user.roles);
+    } catch (e) {
+      roles = ['MENTEE']; // Fallback
+    }
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      roles: roles
+    };
     next();
   } catch (error) {
     return res.status(401).json({
