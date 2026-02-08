@@ -1,10 +1,32 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { AIService } from '../services/ai.service';
 
 const prisma = new PrismaClient();
+const aiService = new AIService();
 
 export class MentorController {
+  private parseTags(tags: string | null): string[] {
+    if (!tags) return [];
+    try {
+      const parsed = JSON.parse(tags);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  private transformProfile(profile: any) {
+    if (!profile) return null;
+    return {
+      ...profile,
+      expertiseTags: this.parseTags(profile.expertiseTags),
+      industryTags: this.parseTags(profile.industryTags),
+      skillTags: this.parseTags(profile.skillTags),
+    };
+  }
+
   // Get current mentor's profile
   getMyProfile = async (req: AuthRequest, res: Response) => {
     try {
@@ -39,7 +61,7 @@ export class MentorController {
 
       res.json({
         success: true,
-        data: mentorProfile
+        data: this.transformProfile(mentorProfile)
       });
     } catch (error: any) {
       res.status(500).json({
@@ -108,13 +130,76 @@ export class MentorController {
 
       res.json({
         success: true,
-        data: mentorProfile
+        data: this.transformProfile(mentorProfile)
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
         error: error.message
       });
+    }
+  };
+
+  // Upload Resume and Generate AI Tags
+  uploadResume = async (req: AuthRequest, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file uploaded' });
+      }
+
+      const userId = req.user?.id;
+      const filePath = req.file.path;
+      
+      // 1. Extract text
+      const text = await aiService.extractTextFromPDF(filePath);
+      
+      // 2. Generate tags
+      const tags = await aiService.generateTagsFromText(text);
+      
+      // 3. Update Profile with resume info
+      await prisma.profile.upsert({
+        where: { userId },
+        create: {
+            userId: userId!,
+            resumeUrl: filePath,
+            resumeText: text
+        },
+        update: {
+          resumeUrl: filePath, 
+          resumeText: text
+        }
+      });
+
+      // 4. Update MentorProfile with generated tags
+      const mentorProfile = await prisma.mentorProfile.upsert({
+        where: { userId },
+        create: {
+            userId: userId!,
+            yearsOfExperience: 0,
+            expertiseTags: JSON.stringify(tags.expertise),
+            industryTags: JSON.stringify(tags.industry),
+            skillTags: JSON.stringify(tags.skills),
+            instantRate: 0,
+            scheduledRate: 0
+        },
+        update: {
+            expertiseTags: JSON.stringify(tags.expertise),
+            industryTags: JSON.stringify(tags.industry),
+            skillTags: JSON.stringify(tags.skills),
+        }
+      });
+
+      res.json({
+        success: true,
+        data: {
+          resumeUrl: filePath,
+          extractedTags: tags,
+          mentorProfile: this.transformProfile(mentorProfile)
+        }
+      });
+
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
     }
   };
 
@@ -248,7 +333,7 @@ export class MentorController {
 
       res.json({
         success: true,
-        data: mentorProfile
+        data: this.transformProfile(mentorProfile)
       });
     } catch (error: any) {
       res.status(500).json({
@@ -266,15 +351,27 @@ export class MentorController {
       const where: any = {};
 
       if (expertise) {
-        where.expertiseTags = {
-          hasSome: Array.isArray(expertise) ? expertise : [expertise]
-        };
+        const expertiseList = Array.isArray(expertise) ? expertise : [expertise];
+        where.OR = expertiseList.map((tag: any) => ({
+            expertiseTags: { contains: tag }
+        }));
       }
 
       if (industry) {
-        where.industryTags = {
-          hasSome: Array.isArray(industry) ? industry : [industry]
-        };
+        const industryList = Array.isArray(industry) ? industry : [industry];
+        const industryConditions = industryList.map((tag: any) => ({
+            industryTags: { contains: tag }
+        }));
+        
+        if (where.OR) {
+            where.AND = [
+                { OR: where.OR },
+                { OR: industryConditions }
+            ];
+            delete where.OR;
+        } else {
+            where.OR = industryConditions;
+        }
       }
 
       if (minRating) {
@@ -315,7 +412,7 @@ export class MentorController {
 
       res.json({
         success: true,
-        data: mentors
+        data: mentors.map(m => this.transformProfile(m))
       });
     } catch (error: any) {
       res.status(500).json({

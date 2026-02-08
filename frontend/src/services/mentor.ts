@@ -107,20 +107,51 @@ export const mentorApi = {
     return response.data
   },
 
-  // Get public mentor profile
-  getPublicProfile: async (id: string): Promise<{ success: boolean; data: MentorProfile }> => {
-    const response = await api.get(`/mentors/${id}`)
-    return response.data
+  // Upload Resume
+  uploadResume: async (file: File) => {
+    const formData = new FormData();
+    formData.append('resume', file);
+    
+    const response = await api.post('/mentors/me/resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
   },
 
   // Search mentors
-  searchMentors: async (params?: {
-    expertise?: string[]
-    industry?: string[]
-    minRating?: number
-    maxRate?: number
+  searchMentors: async (filters: {
+    expertise?: string | string[];
+    industry?: string | string[];
+    minRating?: number;
+    maxRate?: number;
   }) => {
-    const response = await api.get('/mentors/search', { params })
-    return response.data
+    const params = new URLSearchParams();
+    if (filters.expertise) {
+        if (Array.isArray(filters.expertise)) {
+            filters.expertise.forEach(e => params.append('expertise', e));
+        } else {
+            params.append('expertise', filters.expertise);
+        }
+    }
+    if (filters.industry) {
+        if (Array.isArray(filters.industry)) {
+            filters.industry.forEach(i => params.append('industry', i));
+        } else {
+            params.append('industry', filters.industry);
+        }
+    }
+    if (filters.minRating) params.append('minRating', filters.minRating.toString());
+    if (filters.maxRate) params.append('maxRate', filters.maxRate.toString());
+
+    const response = await api.get(`/mentors/search?${params.toString()}`);
+    return response.data;
+  },
+  
+  // Get public profile
+  getPublicProfile: async (id: string) => {
+    const response = await api.get(`/mentors/${id}`);
+    return response.data;
   }
 }
