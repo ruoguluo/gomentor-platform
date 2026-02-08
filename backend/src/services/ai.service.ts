@@ -1,12 +1,13 @@
 import fs from 'fs';
-import pdf from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 
 export class AIService {
   // Extract text from PDF
   async extractTextFromPDF(filePath: string): Promise<string> {
     try {
       const dataBuffer = fs.readFileSync(filePath);
-      const data = await pdf(dataBuffer);
+      const parser = new PDFParse({ data: dataBuffer });
+      const data = await parser.getText();
       return data.text;
     } catch (error: any) {
       console.warn('PDF parsing failed (using fallback text):', error.message);
