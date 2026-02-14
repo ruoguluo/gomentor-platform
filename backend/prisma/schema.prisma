@@ -110,6 +110,13 @@ model MentorProfile {
   scheduledRate     Float
   isInstantAvailable Boolean @default(false)
   
+  // Operational Patterns (Service Types)
+  servicePatterns   String @default("[]") // JSON array of enabled patterns: ["instant", "scheduled", "workshop", "consulting"]
+  
+  // Pattern-specific settings
+  instantSettings   String? // JSON: { isOnlineNow: boolean, weeklySchedule: [...], rankBoost: boolean }
+  consultingRate    Float?  // Hourly rate for freelancer consulting
+  
   // Verification
   isVerified        Boolean @default(false)
   verificationNotes String?
@@ -125,12 +132,36 @@ model MentorProfile {
   businesses     Business[]
   availability   MentorAvailability[]
   courses        Course[]
+  onlineSchedule MentorOnlineSchedule[] // For instant mentorship 1-4 week planning
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   @@index([expertiseTags])
   @@index([industryTags])
+}
+
+// For Instant Mentorship - 1 to 4 weeks online planning
+model MentorOnlineSchedule {
+  id        String @id @default(uuid())
+  mentorId  String
+  mentor    MentorProfile @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  
+  // Schedule period
+  weekStart DateTime  // Start of the week (Sunday)
+  weekEnd   DateTime  // End of the week (Saturday)
+  
+  // Daily availability for that week
+  // Stored as JSON: [{ day: 0, startTime: "09:00", endTime: "17:00", isAvailable: true }, ...]
+  dailySlots String
+  
+  isActive  Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([mentorId])
+  @@index([weekStart])
 }
 
 model Education {
