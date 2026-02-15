@@ -24,11 +24,8 @@ export class MentorController {
       expertiseTags: this.parseTags(profile.expertiseTags),
       industryTags: this.parseTags(profile.industryTags),
       skillTags: this.parseTags(profile.skillTags),
-      servicePatterns: this.parseTags(profile.servicePatterns),
-      instantSettings: profile.instantSettings ? JSON.parse(profile.instantSettings) : null,
     };
   }
-
   // Get current mentor's profile
   getMyProfile = async (req: AuthRequest, res: Response) => {
     try {
