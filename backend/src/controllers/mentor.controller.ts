@@ -17,6 +17,15 @@ export class MentorController {
     }
   }
 
+  private parseJson(json: string | null): any {
+    if (!json) return null;
+    try {
+      return JSON.parse(json);
+    } catch (e) {
+      return null;
+    }
+  }
+
   private transformProfile(profile: any) {
     if (!profile) return null;
     return {
@@ -24,13 +33,15 @@ export class MentorController {
       expertiseTags: this.parseTags(profile.expertiseTags),
       industryTags: this.parseTags(profile.industryTags),
       skillTags: this.parseTags(profile.skillTags),
+      servicePatterns: this.parseTags(profile.servicePatterns),
+      instantSettings: this.parseJson(profile.instantSettings),
     };
   }
   // Get current mentor's profile
   getMyProfile = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
-      
+
       const mentorProfile = await prisma.mentorProfile.findUnique({
         where: { userId },
         include: {
@@ -148,23 +159,23 @@ export class MentorController {
 
       const userId = req.user?.id;
       const filePath = req.file.path;
-      
+
       // 1. Extract text
       const text = await aiService.extractTextFromPDF(filePath);
-      
+
       // 2. Generate tags
       const tags = await aiService.generateTagsFromText(text);
-      
+
       // 3. Update Profile with resume info
       await prisma.profile.upsert({
         where: { userId },
         create: {
-            userId: userId!,
-            resumeUrl: filePath,
-            resumeText: text
+          userId: userId!,
+          resumeUrl: filePath,
+          resumeText: text
         },
         update: {
-          resumeUrl: filePath, 
+          resumeUrl: filePath,
           resumeText: text
         }
       });
@@ -173,18 +184,18 @@ export class MentorController {
       const mentorProfile = await prisma.mentorProfile.upsert({
         where: { userId },
         create: {
-            userId: userId!,
-            yearsOfExperience: 0,
-            expertiseTags: JSON.stringify(tags.expertise),
-            industryTags: JSON.stringify(tags.industry),
-            skillTags: JSON.stringify(tags.skills),
-            instantRate: 0,
-            scheduledRate: 0
+          userId: userId!,
+          yearsOfExperience: 0,
+          expertiseTags: JSON.stringify(tags.expertise),
+          industryTags: JSON.stringify(tags.industry),
+          skillTags: JSON.stringify(tags.skills),
+          instantRate: 0,
+          scheduledRate: 0
         },
         update: {
-            expertiseTags: JSON.stringify(tags.expertise),
-            industryTags: JSON.stringify(tags.industry),
-            skillTags: JSON.stringify(tags.skills),
+          expertiseTags: JSON.stringify(tags.expertise),
+          industryTags: JSON.stringify(tags.industry),
+          skillTags: JSON.stringify(tags.skills),
         }
       });
 
@@ -198,7 +209,7 @@ export class MentorController {
       });
 
     } catch (error: any) {
-        res.status(500).json({ success: false, error: error.message });
+      res.status(500).json({ success: false, error: error.message });
     }
   };
 
@@ -352,24 +363,24 @@ export class MentorController {
       if (expertise) {
         const expertiseList = Array.isArray(expertise) ? expertise : [expertise];
         where.OR = expertiseList.map((tag: any) => ({
-            expertiseTags: { contains: tag }
+          expertiseTags: { contains: tag }
         }));
       }
 
       if (industry) {
         const industryList = Array.isArray(industry) ? industry : [industry];
         const industryConditions = industryList.map((tag: any) => ({
-            industryTags: { contains: tag }
+          industryTags: { contains: tag }
         }));
-        
+
         if (where.OR) {
-            where.AND = [
-                { OR: where.OR },
-                { OR: industryConditions }
-            ];
-            delete where.OR;
+          where.AND = [
+            { OR: where.OR },
+            { OR: industryConditions }
+          ];
+          delete where.OR;
         } else {
-            where.OR = industryConditions;
+          where.OR = industryConditions;
         }
       }
 
@@ -440,10 +451,10 @@ export class MentorController {
   updateServicePatterns = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
-      const { 
+      const {
         patterns, // ["instant", "scheduled", "workshop", "consulting"] or JSON/string
         instantSettings, // { isOnlineNow, weeklySchedule, rankBoost }
-        consultingRate 
+        consultingRate
       } = req.body;
 
       // Normalize patterns to an array
@@ -521,10 +532,10 @@ export class MentorController {
       }
 
       // Update instant settings
-      const currentSettings = mentorProfile.instantSettings 
-        ? JSON.parse(mentorProfile.instantSettings) 
+      const currentSettings = mentorProfile.instantSettings
+        ? JSON.parse(mentorProfile.instantSettings)
         : {};
-      
+
       const updatedSettings = {
         ...currentSettings,
         isOnlineNow: isOnline,
@@ -671,7 +682,7 @@ export class MentorController {
       }
 
       await prisma.mentorOnlineSchedule.update({
-        where: { 
+        where: {
           id: scheduleId,
           mentorId: mentorProfile.id
         },
