@@ -115,7 +115,28 @@ export const MentorSearchPage: React.FC = () => {
         {/* Filter Tags */}
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
           <button
-            onClick={() => setFilters({ ...filters, isOnline: !filters.isOnline })}
+            onClick={() => {
+              const newIsOnline = !filters.isOnline
+              setFilters({ ...filters, isOnline: newIsOnline })
+              // Trigger search with updated filter
+              setLoading(true)
+              mentorApi.searchMentors({
+                expertise: filters.expertise || undefined,
+                industry: filters.industry || undefined,
+                minRating: filters.minRating || undefined,
+                maxRate: filters.maxRate || undefined,
+                isOnline: newIsOnline || undefined,
+                servicePattern: filters.servicePattern || undefined
+              }).then(response => {
+                if (response.success) {
+                  setMentors(response.data)
+                }
+              }).catch(error => {
+                console.error('Failed to search mentors', error)
+              }).finally(() => {
+                setLoading(false)
+              })
+            }}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
               filters.isOnline 
                 ? 'bg-green-100 text-green-700 border border-green-200' 
