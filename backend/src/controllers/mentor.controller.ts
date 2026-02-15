@@ -441,14 +441,26 @@ export class MentorController {
     try {
       const userId = req.user?.id;
       const { 
-        patterns, // ["instant", "scheduled", "workshop", "consulting"]
+        patterns, // ["instant", "scheduled", "workshop", "consulting"] or JSON/string
         instantSettings, // { isOnlineNow, weeklySchedule, rankBoost }
         consultingRate 
       } = req.body;
 
+      // Normalize patterns to an array
+      let rawPatterns: any = patterns;
+      if (typeof rawPatterns === 'string') {
+        try {
+          const parsed = JSON.parse(rawPatterns);
+          rawPatterns = parsed;
+        } catch {
+          rawPatterns = rawPatterns.split(',').map((p: string) => p.trim()).filter(Boolean);
+        }
+      }
+      const patternArray: string[] = Array.isArray(rawPatterns) ? rawPatterns : [];
+
       // Validate patterns
       const validPatterns = ['instant', 'scheduled', 'workshop', 'consulting'];
-      const validatedPatterns = patterns?.filter((p: string) => validPatterns.includes(p)) || [];
+      const validatedPatterns = patternArray.filter((p: string) => validPatterns.includes(p));
 
       // Validate instant settings if instant pattern is enabled
       let validatedInstantSettings = null;
