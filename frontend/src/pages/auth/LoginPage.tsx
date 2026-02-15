@@ -55,7 +55,7 @@ export const LoginPage: React.FC = () => {
           <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30">
             <Sparkles className="w-7 h-7 text-white" />
           </div>
-          <span className="text-2xl font-bold gradient-text">GoMentor</span>
+          <span className="text-2xl font-bold gradient-text">PhxNorth</span>
         </div>
       </div>
 

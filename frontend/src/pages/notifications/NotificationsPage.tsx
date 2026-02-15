@@ -8,7 +8,7 @@ export const NotificationsPage: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border divide-y">
         {[
           { title: 'Upcoming Session', message: 'Your session with Sarah Chen starts in 15 minutes', time: '15 min ago', unread: true },
-          { title: 'Welcome to GoMentor!', message: 'Complete your profile to get better mentor matches', time: '2 hours ago', unread: true },
+          { title: 'Welcome to PhxNorth!', message: 'Complete your profile to get better mentor matches', time: '2 hours ago', unread: true },
           { title: 'Session Completed', message: 'Your session with Marcus Johnson has ended', time: '1 day ago', unread: false },
         ].map((notif, i) => (
           <div key={i} className={`p-4 ${notif.unread ? 'bg-blue-50' : ''}`}>

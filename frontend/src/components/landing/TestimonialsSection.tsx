@@ -7,7 +7,7 @@ export const TestimonialsSection = () => {
         {
             name: "Sarah Chen",
             role: "Software Engineer at Google",
-            content: "GoMentor helped me transition from a bootcamp grad to a senior role in just 18 months. The guidance was indispensable.",
+            content: "PhxNorth helped me transition from a bootcamp grad to a senior role in just 18 months. The guidance was indispensable.",
 
             rating: 5,
             image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah"
@@ -22,7 +22,7 @@ export const TestimonialsSection = () => {
         {
             name: "Emily Watson",
             role: "Startup Founder",
-            content: "I've had 3 mentors through GoMentor. Each one brought unique insights that shaped my business strategy.",
+            content: "I've had 3 mentors through PhxNorth. Each one brought unique insights that shaped my business strategy.",
             rating: 5,
             image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily"
         }

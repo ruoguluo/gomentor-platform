@@ -57,7 +57,7 @@ export const RegisterPage: React.FC = () => {
   return (
     <div className="w-full">
       <h2 className="text-3xl font-bold text-center mb-2">Create Account</h2>
-      <p className="text-gray-600 text-center mb-8">Join GoMentor and start your growth journey</p>
+      <p className="text-gray-600 text-center mb-8">Join PhxNorth and start your growth journey</p>
       
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-700">

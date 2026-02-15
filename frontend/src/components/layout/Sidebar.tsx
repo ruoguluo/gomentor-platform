@@ -47,7 +47,7 @@ export const Sidebar: React.FC = () => {
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div>
-            <span className="text-lg font-bold text-gray-900">GoMentor</span>
+            <span className="text-lg font-bold text-gray-900">PhxNorth</span>
             <p className="text-xs text-gray-600">Learn & Grow</p>
           </div>
         </Link>

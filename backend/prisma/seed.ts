@@ -51,7 +51,7 @@ async function main() {
       profile: {
         create: {
           headline: 'Platform Administrator',
-          bio: 'Managing the GoMentor platform',
+          bio: 'Managing the PhxNorth platform',
         },
       },
     },
@@ -573,7 +573,7 @@ async function main() {
       {
         userId: mentees[0].id,
         type: 'SYSTEM',
-        title: 'Welcome to GoMentor!',
+        title: 'Welcome to PhxNorth!',
         message: 'Complete your profile to get better mentor matches',
         actionUrl: '/profile',
       },
