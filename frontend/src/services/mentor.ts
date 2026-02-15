@@ -15,13 +15,6 @@ export interface MentorProfile {
   totalSessions: number
   totalEarnings: number
   averageRating: number
-  servicePatterns: string[]
-  instantSettings?: {
-    isOnlineNow: boolean
-    rankBoost: boolean
-  }
-  consultingRate?: number
-  isInstantAvailable: boolean
   user: {
     id: string
     firstName: string
@@ -37,30 +30,6 @@ export interface MentorProfile {
   }
   education: Education[]
   workExperience: WorkExperience[]
-}
-
-export interface ServicePatternInfo {
-  id: string
-  name: string
-  description: string
-  features: string[]
-  requirements: string[]
-}
-
-export interface ServicePattern {
-  id: string
-  name: string
-  description: string
-}
-
-export interface UpdateServicePatternsData {
-  patterns: string[]
-  instantSettings?: {
-    isOnlineNow?: boolean
-    weeklySchedule?: any[]
-    rankBoost?: boolean
-  }
-  consultingRate?: number
 }
 
 export interface Education {
@@ -145,69 +114,13 @@ export const mentorApi = {
   },
 
   // Search mentors
-  searchMentors: async (filters: {
-    expertise?: string | string[]
-    industry?: string | string[]
+  searchMentors: async (params?: {
+    expertise?: string[]
+    industry?: string[]
     minRating?: number
     maxRate?: number
   }) => {
-    const params = new URLSearchParams()
-    if (filters.expertise) {
-      if (Array.isArray(filters.expertise)) {
-        filters.expertise.forEach(e => params.append('expertise', e))
-      } else {
-        params.append('expertise', filters.expertise)
-      }
-    }
-    if (filters.industry) {
-      if (Array.isArray(filters.industry)) {
-        filters.industry.forEach(i => params.append('industry', i))
-      } else {
-        params.append('industry', filters.industry)
-      }
-    }
-    if (filters.minRating) params.append('minRating', filters.minRating.toString())
-    if (filters.maxRate) params.append('maxRate', filters.maxRate.toString())
-
-    const response = await api.get(`/mentors/search?${params.toString()}`)
-    return response.data
-  },
-
-  // ==================== SERVICE PATTERNS ====================
-
-  // Get service pattern info
-  getServicePatternInfo: async (): Promise<{ success: boolean; data: ServicePatternInfo[] }> => {
-    const response = await api.get('/mentors/service-patterns')
-    return response.data
-  },
-
-  // Update service patterns
-  updateServicePatterns: async (data: UpdateServicePatternsData) => {
-    const response = await api.put('/mentors/me/service-patterns', data)
-    return response.data
-  },
-
-  // Set online status for instant mentorship
-  setOnlineStatus: async (isOnline: boolean) => {
-    const response = await api.post('/mentors/me/online-status', { isOnline })
-    return response.data
-  },
-
-  // Get online schedules
-  getOnlineSchedules: async (weeksAhead = 4) => {
-    const response = await api.get(`/mentors/me/online-schedules?weeksAhead=${weeksAhead}`)
-    return response.data
-  },
-
-  // Create online schedule
-  createOnlineSchedule: async (data: { weekStart: string; dailySlots: any[] }) => {
-    const response = await api.post('/mentors/me/online-schedules', data)
-    return response.data
-  },
-
-  // Delete online schedule
-  deleteOnlineSchedule: async (scheduleId: string) => {
-    const response = await api.delete(`/mentors/me/online-schedules/${scheduleId}`)
+    const response = await api.get('/mentors/search', { params })
     return response.data
   }
 }

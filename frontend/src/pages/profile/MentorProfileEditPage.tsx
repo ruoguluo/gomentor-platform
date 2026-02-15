@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { mentorApi, MentorProfile, UpdateMentorProfileData } from '../../services/mentor'
-import { ServicePatternsSection } from '../../components/ServicePatternsSection'
 import { 
   User, 
   Briefcase, 
@@ -13,10 +12,7 @@ import {
   Plus,
   X,
   AlertCircle,
-  CheckCircle,
-  FileText,
-  Upload,
-  Layers
+  CheckCircle
 } from 'lucide-react'
 
 export const MentorProfileEditPage: React.FC = () => {
@@ -350,18 +346,6 @@ export const MentorProfileEditPage: React.FC = () => {
               )
             })}
           </div>
-        </div>
-
-        {/* Service Patterns */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-              <Layers className="w-5 h-5 text-orange-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900">Service Patterns</h2>
-          </div>
-          
-          <ServicePatternsSection onUpdate={() => setSuccess('Service patterns updated!')} />
         </div>
 
         {/* Submit */}
