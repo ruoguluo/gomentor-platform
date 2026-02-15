@@ -157,6 +157,8 @@ export const mentorApi = {
     industry?: string | string[];
     minRating?: number;
     maxRate?: number;
+    isOnline?: boolean;
+    servicePattern?: string;
   }) => {
     const params = new URLSearchParams();
     if (filters.expertise) {
@@ -175,6 +177,8 @@ export const mentorApi = {
     }
     if (filters.minRating) params.append('minRating', filters.minRating.toString());
     if (filters.maxRate) params.append('maxRate', filters.maxRate.toString());
+    if (filters.isOnline) params.append('isOnline', 'true');
+    if (filters.servicePattern) params.append('servicePattern', filters.servicePattern);
 
     const response = await api.get(`/mentors/search?${params.toString()}`);
     return response.data;

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { mentorApi, MentorProfile } from '../../services/mentor'
-import { Star, MapPin, Briefcase, GraduationCap, Clock, Award, CheckCircle } from 'lucide-react'
+import { Star, MapPin, Briefcase, GraduationCap, Clock, Award, CheckCircle, Zap, Phone, Calendar, Users, DollarSign } from 'lucide-react'
 
 export const MentorProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -34,6 +34,17 @@ export const MentorProfilePage: React.FC = () => {
     }
   }
 
+  // Get service pattern icon
+  const getPatternIcon = (pattern: string) => {
+    switch (pattern) {
+      case 'instant': return Zap
+      case 'scheduled': return Calendar
+      case 'workshop': return Users
+      case 'consulting': return DollarSign
+      default: return Award
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -57,19 +68,36 @@ export const MentorProfilePage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header Card */}
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+      <div className={`bg-white p-8 rounded-2xl shadow-sm border relative ${
+        mentor.isInstantAvailable ? 'border-green-200 ring-1 ring-green-100' : 'border-gray-100'
+      }`}>
+        {/* Online Badge */}
+        {mentor.isInstantAvailable && (
+          <div className="absolute top-6 right-6 flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            ONLINE NOW
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row items-start gap-8">
-          {mentor.user.avatar ? (
-            <img 
-              src={mentor.user.avatar} 
-              alt={`${mentor.user.firstName} ${mentor.user.lastName}`} 
-              className="w-32 h-32 rounded-2xl object-cover shadow-sm"
-            />
-          ) : (
-            <div className="w-32 h-32 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 font-bold text-3xl shadow-sm">
-              {mentor.user.firstName[0]}{mentor.user.lastName[0]}
-            </div>
-          )}
+          <div className="relative">
+            {mentor.user.avatar ? (
+              <img 
+                src={mentor.user.avatar} 
+                alt={`${mentor.user.firstName} ${mentor.user.lastName}`} 
+                className="w-32 h-32 rounded-2xl object-cover shadow-sm"
+              />
+            ) : (
+              <div className="w-32 h-32 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 font-bold text-3xl shadow-sm">
+                {mentor.user.firstName[0]}{mentor.user.lastName[0]}
+              </div>
+            )}
+            
+            {/* Online Indicator on Avatar */}
+            {mentor.isInstantAvailable && (
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-2 border-white rounded-full shadow-md" />
+            )}
+          </div>
           
           <div className="flex-1 space-y-4">
             <div>
@@ -107,26 +135,105 @@ export const MentorProfilePage: React.FC = () => {
                   <span className="text-blue-700 font-medium">{mentor.industry}</span>
                 </div>
               )}
+              
+              {/* Service Patterns */}
+              {mentor.servicePatterns?.includes('instant') && mentor.isInstantAvailable && (
+                <div className="flex items-center gap-1.5 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200">
+                  <Zap className="w-4 h-4 text-green-600" />
+                  <span className="text-green-700 font-medium">Instant Call</span>
+                </div>
+              )}
             </div>
           </div>
           
+          {/* Action Panel */}
           <div className="w-full md:w-auto flex flex-col gap-3 bg-gray-50 p-6 rounded-xl border border-gray-100">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Session Rate</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-gray-900">${mentor.scheduledRate}</span>
-                <span className="text-gray-500">/hr</span>
-              </div>
-            </div>
-            <button className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium shadow-sm hover:shadow transition-all active:scale-95">
-              Book Session
-            </button>
+            {/* Online - Instant Call */}
+            {mentor.isInstantAvailable && mentor.servicePatterns?.includes('instant') ? (
+              <>
+                <div className="text-center mb-2">
+                  <p className="text-sm text-gray-500 mb-1">Instant Session Rate</p>
+                  <div className="flex items-baseline gap-1 justify-center">
+                    <span className="text-3xl font-bold text-gray-900">${mentor.instantRate}</span>
+                    <span className="text-gray-500">/hr</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => window.location.href = `/call/instant/${mentor.id}`}
+                  className="w-full px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 font-medium shadow-lg shadow-green-600/25 hover:shadow-green-600/40 transition-all flex items-center justify-center gap-2"
+                >
+                  <Phone className="w-5 h-5" />
+                  Call Now
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-center mb-2">
+                  <p className="text-sm text-gray-500 mb-1">Session Rate</p>
+                  <div className="flex items-baseline gap-1 justify-center">
+                    <span className="text-3xl font-bold text-gray-900">${mentor.scheduledRate}</span>
+                    <span className="text-gray-500">/hr</span>
+                  </div>
+                </div>
+                <button className="w-full px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium shadow-sm hover:shadow transition-all">
+                  Book Session
+                </button>
+              </>
+            )}
+            
+            {mentor.servicePatterns?.includes('scheduled') && (
+              <button className="w-full px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 font-medium transition-colors">
+                Schedule for Later
+              </button>
+            )}
+            
             <button className="w-full px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 font-medium transition-colors">
               Send Message
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Service Patterns Section */}
+      {mentor.servicePatterns && mentor.servicePatterns.length > 0 && (
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Available Services</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {mentor.servicePatterns.map((pattern) => {
+              const Icon = getPatternIcon(pattern)
+              const isActive = pattern === 'instant' && mentor.isInstantAvailable
+              
+              return (
+                <div 
+                  key={pattern}
+                  className={`p-4 rounded-xl border ${
+                    isActive 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-gray-50 border-gray-200'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${
+                    isActive ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <p className="font-semibold text-gray-900 capitalize">
+                    {pattern === 'instant' ? 'Instant Mentorship' : 
+                     pattern === 'scheduled' ? 'Scheduled Sessions' :
+                     pattern === 'workshop' ? 'Workshops' : 'Consulting'}
+                  </p>
+                  {isActive && (
+                    <p className="text-sm text-green-600 mt-1">Available now</p>
+                  )}
+                  {pattern === 'consulting' && mentor.consultingRate && (
+                    <p className="text-sm text-gray-500 mt-1">${mentor.consultingRate}/hr</p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
