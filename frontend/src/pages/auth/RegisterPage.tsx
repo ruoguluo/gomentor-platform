@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { authApi } from '../../services/auth'
 import { useAuthStore } from '../../store/authStore'
 import { AlertCircle, Loader2 } from 'lucide-react'
 
 export const RegisterPage: React.FC = () => {
-  const navigate = useNavigate()
   const { setAuth } = useAuthStore()
   const [formData, setFormData] = useState({
     firstName: '',

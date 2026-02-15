@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { mentorApi, MentorProfile, UpdateMentorProfileData } from '../../services/mentor'
+import { mentorApi, UpdateMentorProfileData } from '../../services/mentor'
+import { ServicePatternsSection } from '../../components/ServicePatternsSection'
 import { 
   User, 
-  Briefcase, 
-  GraduationCap, 
   DollarSign, 
   Tag, 
   Save,
@@ -12,14 +11,17 @@ import {
   Plus,
   X,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  FileText,
+  Upload,
+  Layers
 } from 'lucide-react'
 
 export const MentorProfileEditPage: React.FC = () => {
   const navigate = useNavigate()
-  const [profile, setProfile] = useState<MentorProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [isUploadingResume, setIsUploadingResume] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
@@ -48,7 +50,6 @@ export const MentorProfileEditPage: React.FC = () => {
     try {
       const response = await mentorApi.getMyProfile()
       if (response.success) {
-        setProfile(response.data)
         setFormData({
           yearsOfExperience: response.data.yearsOfExperience || 0,
           currentCompany: response.data.currentCompany || '',
@@ -86,6 +87,32 @@ export const MentorProfileEditPage: React.FC = () => {
       setError(err.response?.data?.error || 'Failed to save profile')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploadingResume(true)
+    setError('')
+    try {
+      const response = await mentorApi.uploadResume(file)
+      if (response.success) {
+        setSuccess('Resume uploaded and processed successfully!')
+        // Merge generated tags
+        setFormData(prev => ({
+          ...prev,
+          expertiseTags: [...new Set([...(prev.expertiseTags || []), ...(response.data.extractedTags.expertise || [])])],
+          industryTags: [...new Set([...(prev.industryTags || []), ...(response.data.extractedTags.industry || [])])],
+          skillTags: [...new Set([...(prev.skillTags || []), ...(response.data.extractedTags.skills || [])])],
+        }))
+        setTimeout(() => setSuccess(''), 3000)
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to upload resume')
+    } finally {
+      setIsUploadingResume(false)
     }
   }
 
@@ -154,6 +181,45 @@ export const MentorProfileEditPage: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Resume Upload */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <FileText className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Resume</h2>
+              <p className="text-sm text-gray-500">Upload your resume to auto-fill tags and expertise</p>
+            </div>
+          </div>
+
+          <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-blue-500 transition-colors bg-gray-50/50">
+            {isUploadingResume ? (
+              <div className="flex flex-col items-center justify-center py-4">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
+                <p className="text-gray-600 font-medium">Analyzing your resume...</p>
+                <p className="text-sm text-gray-500 mt-1">This might take a few seconds</p>
+              </div>
+            ) : (
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleResumeUpload}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div className="flex flex-col items-center justify-center pointer-events-none">
+                  <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3">
+                    <Upload className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <p className="text-gray-900 font-medium mb-1">Click to upload or drag and drop</p>
+                  <p className="text-sm text-gray-500">PDF only (max 5MB)</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Basic Info */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
@@ -346,6 +412,18 @@ export const MentorProfileEditPage: React.FC = () => {
               )
             })}
           </div>
+        </div>
+
+        {/* Service Patterns */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+              <Layers className="w-5 h-5 text-orange-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Service Patterns</h2>
+          </div>
+          
+          <ServicePatternsSection onUpdate={() => setSuccess('Service patterns updated!')} />
         </div>
 
         {/* Submit */}
