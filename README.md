@@ -1,4 +1,4 @@
-# GoMentor Platform
+# PhxNorth Platform
 
 A comprehensive AI-powered global mentorship platform connecting mentees with top-tier mentors worldwide.
 

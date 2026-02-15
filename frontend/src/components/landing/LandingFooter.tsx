@@ -11,7 +11,7 @@ export const LandingFooter = () => {
                         <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
                             <Sparkles className="w-6 h-6 text-primary" />
                         </div>
-                        <span className="text-2xl font-bold text-white">GoMentor</span>
+                        <span className="text-2xl font-bold text-white">PhxNorth</span>
                     </div>
                     <p className="text-sm leading-relaxed max-w-xs">
                         AI-powered mentorship platform connecting professionals with world-class mentors.
@@ -49,7 +49,7 @@ export const LandingFooter = () => {
             </div>
 
             <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-800 text-center text-sm">
-                <p>© 2026 GoMentor. All rights reserved.</p>
+                <p>© 2026 PhxNorth. All rights reserved.</p>
             </div>
         </footer>
     )

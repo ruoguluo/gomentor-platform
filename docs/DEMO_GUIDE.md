@@ -1,6 +1,6 @@
-# 🎬 GoMentor Demo Guide
+# 🎬 PhxNorth Demo Guide
 
-Quick reference for demoing the GoMentor platform to friends, investors, or stakeholders.
+Quick reference for demoing the PhxNorth platform to friends, investors, or stakeholders.
 
 ---
 
@@ -161,7 +161,7 @@ Before showing to friends, ensure:
 ## 🎭 Demo Script (Suggested Flow)
 
 ### Opening (30 seconds)
-> "GoMentor is an AI-powered global mentorship platform. Unlike other platforms with retired coaches, we connect you with active industry leaders who are still building companies and shaping industries today."
+> "PhxNorth is an AI-powered global mentorship platform. Unlike other platforms with retired coaches, we connect you with active industry leaders who are still building companies and shaping industries today."
 
 ### The Problem (1 minute)
 > "Most mentorship fails because:

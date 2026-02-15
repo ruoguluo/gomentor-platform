@@ -12,7 +12,7 @@ export const LandingNavbar = () => {
                         <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-                        GoMentor
+                        PhxNorth
                     </span>
                 </div>
 

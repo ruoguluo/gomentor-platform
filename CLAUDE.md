@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GoMentor Platform is an AI-powered global mentorship platform with:
+PhxNorth Platform is an AI-powered global mentorship platform with:
 - **Backend**: Node.js + Express + TypeScript (port 3000)
 - **Frontend**: React + TypeScript + Vite + Tailwind CSS (port 5173)
 - **Database**: SQLite (dev/staging) via Prisma ORM

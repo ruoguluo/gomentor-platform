@@ -53,7 +53,7 @@ export const FeaturesSection = () => {
         <section className="py-24 px-6 bg-gray-50/50">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16 space-y-4">
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Why Choose GoMentor?</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Why Choose PhxNorth?</h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                         Everything you need to accelerate your career with world-class mentorship
                     </p>

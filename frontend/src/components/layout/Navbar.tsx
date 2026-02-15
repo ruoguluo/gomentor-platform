@@ -18,7 +18,7 @@ export const Navbar: React.FC = () => {
             <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:shadow-blue-600/40 transition-shadow">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">GoMentor</span>
+            <span className="text-xl font-bold gradient-text">PhxNorth</span>
           </Link>
           
           {/* Center Nav Links */}
